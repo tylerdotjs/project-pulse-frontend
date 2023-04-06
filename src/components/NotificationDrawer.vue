@@ -44,12 +44,12 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from 'vue';
+import { ref } from 'vue';
 import { useNotificationStore } from 'src/stores/notification';
 
 const store = useNotificationStore();
 
 const showing = ref(false);
 
-const notifications = computed(() => store.items);
+const notifications = store.toReactiveArray();
 </script>

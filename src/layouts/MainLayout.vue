@@ -10,9 +10,9 @@
         <q-space></q-space>
         <div class="q-gutter-md">
           <NotificationDrawer></NotificationDrawer>
-          <q-btn round>
-            <q-avatar color="white" text-color="black"> TL </q-avatar>
-          </q-btn>
+          <q-avatar color="white" text-color="black">
+            <img :src="user?.avatar" alt="" />
+          </q-avatar>
         </div>
       </q-toolbar>
     </q-header>
@@ -24,8 +24,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import NotificationDrawer from 'components/NotificationDrawer.vue';
+import { useProfileStore } from 'src/stores/profile';
+import { useAuthStore } from 'src/stores/auth';
+import { Profile } from 'src/models/profile.model';
 
+const profileStore = useProfileStore();
+const authStore = useAuthStore();
 const tab = ref('');
+
+const user = computed<Profile | undefined>(() => {
+  const uid = authStore.getUid();
+  if (!uid.value) return undefined;
+
+  return profileStore.get(uid.value).value;
+});
 </script>

@@ -1,24 +1,29 @@
 import { defineStore } from 'pinia';
 import {
+  DefaultNotification,
   Notification,
   generateFakeNotification,
 } from '../models/notification.model';
+import ReactiveMap from 'src/models/reactiveMap.class';
 
-export type NotificationStoreState = {
-  items: Notification[];
-};
+export const useNotificationStore = defineStore('notification', () => {
+  const data = new ReactiveMap<Notification>(DefaultNotification);
 
-export const useNotificationStore = defineStore('notification', {
-  state: () =>
-    ({
-      items: [generateFakeNotification(), generateFakeNotification()],
-    } as NotificationStoreState),
+  function fillWithDummy(count: number) {
+    for (let i = 0; i < count; i++) {
+      data.add(generateFakeNotification());
+    }
+  }
 
-  getters: {},
+  fillWithDummy(3);
 
-  actions: {
-    clear() {
-      this.items = [];
-    },
-  },
+  setInterval(() => {
+    data.add(generateFakeNotification());
+  }, 10000);
+
+  return {
+    clear: () => data.clear(),
+    get: (id: string) => data.get(id),
+    toReactiveArray: () => data.toReactiveArray(),
+  };
 });

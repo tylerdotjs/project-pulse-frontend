@@ -1,15 +1,21 @@
 import { faker } from '@faker-js/faker';
 
-export interface Notification {
+export type Notification = {
   _id: string;
   body: string;
   timestamp: Date;
-}
+};
+
+export const DefaultNotification = {
+  _id: 'null',
+  body: 'no data',
+  timestamp: new Date(),
+};
 
 export function generateFakeNotification(): Notification {
   return {
     _id: faker.database.mongodbObjectId(),
-    body: faker.lorem.words(1 + Math.round(Math.random()) * 10),
+    body: faker.commerce.productDescription(),
     timestamp: new Date(),
   };
 }

@@ -2,7 +2,7 @@
   "name": "project-pulse",
   "version": "0.0.1",
   "description": "A Quasar Project",
-  "productName": "Quasar App",
+  "productName": "Project Pulse",
   "author": "waffledotjs <waffledotjs@gmail.com>",
   "private": true,
   "scripts": {
