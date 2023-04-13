@@ -5,8 +5,8 @@
       color="red"
       rounded
       class="q-sm"
-      v-if="notifications.length > 0"
-      >{{ notifications.length }}</q-badge
+      v-if="store.computedArray.length > 0"
+      >{{ store.computedArray.length }}</q-badge
     >
     <q-menu style="min-height: 400px" v-model="showing">
       <q-list style="width: 400px" separator>
@@ -26,7 +26,10 @@
             </q-btn>
           </q-item-section>
         </q-item>
-        <q-item v-for="notification in notifications" :key="notification._id">
+        <q-item
+          v-for="notification in store.computedArray"
+          :key="notification._id"
+        >
           <q-item-section>
             <q-item-label>
               {{ notification.body }}
@@ -50,6 +53,4 @@ import { useNotificationStore } from 'src/stores/notification';
 const store = useNotificationStore();
 
 const showing = ref(false);
-
-const notifications = store.toReactiveArray();
 </script>

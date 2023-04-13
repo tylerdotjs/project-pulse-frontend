@@ -44,8 +44,8 @@
 
 <script lang="ts" setup>
 import { QScrollArea } from 'quasar';
-import { useMessageStore } from 'src/stores/message';
-import { computed, ref } from 'vue';
+import { useMessageStore } from 'src/stores/chat';
+import { computed, ref, watch } from 'vue';
 import iL from 'src/models/intervalLengths';
 
 const interval = ref(Date.now());
@@ -81,8 +81,25 @@ const toRel = (date: Date) =>
     return `${val} ${iKey}${val >= 2 ? 's' : ''} ago`;
   });
 
+const props = defineProps<{
+  channel?: string;
+}>();
+
 const store = useMessageStore();
-const messages = store.toReactiveArray();
+
+const messages = computed(() => {
+  let msgs = store.computedArray;
+
+  if (props.channel) {
+    msgs = msgs.filter((el) => el.channelId === props.channel);
+  }
+
+  return msgs;
+});
+
+watch(props, () => {
+  setTimeout(scrollToBottom, 1);
+});
 
 const scrollArea = ref<QScrollArea | null>(null);
 
@@ -109,14 +126,18 @@ function onLoad(index: number, done: () => void) {
 
 function scrollToBottom() {
   if (scrollArea.value) {
-    console.log(scrollArea.value.getScrollPercentage());
     scrollArea.value.setScrollPercentage('vertical', 1);
   }
 }
+
 store.$onAction(({ name }) => {
   if (name == 'send') {
     // Wait 1ms for msg to be added
     setTimeout(scrollToBottom, 1);
   }
+});
+
+defineExpose({
+  scrollToBottom,
 });
 </script>

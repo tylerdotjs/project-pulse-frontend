@@ -3,12 +3,14 @@
     <q-form class="flex q-gutter-md items-center" @submit="submit">
       <q-input
         ref="textInput"
+        dense
         rounded
         outlined
         v-model="text"
         style="flex-grow: 1"
       ></q-input>
       <q-btn
+        dense
         round
         v-if="canSubmit"
         color="primary"
@@ -22,10 +24,16 @@
 <script lang="ts" setup>
 import { QInput } from 'quasar';
 import { MessageBase } from 'src/models/message.model';
-import { useMessageStore } from 'src/stores/message';
+import { useChannelStore } from 'src/stores/channel';
+import { useMessageStore } from 'src/stores/chat';
 import { computed, ref } from 'vue';
 
+const props = defineProps<{
+  channel?: string;
+}>();
+
 const messageStore = useMessageStore();
+const channelStore = useChannelStore();
 
 const text = ref('');
 const textInput = ref<QInput | null>(null);
@@ -38,7 +46,8 @@ const emit = defineEmits<{
 
 function submit() {
   if (!canSubmit.value) return;
-  emit('submit', messageStore.send(text.value).value);
+  const channel = props.channel || channelStore.active;
+  emit('submit', messageStore.send(text.value, channel).value);
   text.value = '';
   focusInput();
 }

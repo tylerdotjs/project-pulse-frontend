@@ -24,6 +24,6 @@ export const useNotificationStore = defineStore('notification', () => {
   return {
     clear: () => data.clear(),
     get: (id: string) => data.get(id),
-    toReactiveArray: () => data.toReactiveArray(),
+    computedArray: data.computedArray,
   };
 });

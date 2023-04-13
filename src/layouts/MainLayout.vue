@@ -25,7 +25,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import NotificationDrawer from 'components/NotificationDrawer.vue';
+import NotificationDrawer from 'src/components/NotificationMenu.vue';
 import { useProfileStore } from 'src/stores/profile';
 import { useAuthStore } from 'src/stores/auth';
 import { Profile } from 'src/models/profile.model';

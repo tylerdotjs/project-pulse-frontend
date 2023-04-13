@@ -6,6 +6,8 @@ export class ReactiveMapPopulate<
   P
 > extends ReactiveMap<B> {
   populateFn: (item: Ref<B>) => ComputedRef<P>;
+  populatedComputedArray: ComputedRef<P[]>;
+
   constructor(
     populateFn: (item: Ref<B>) => ComputedRef<P>,
     defaultItem: B,
@@ -13,19 +15,18 @@ export class ReactiveMapPopulate<
   ) {
     super(defaultItem, options);
     this.populateFn = populateFn;
+
+    this.populatedComputedArray = computed<P[]>(
+      () =>
+        this.ids.value
+          .map((id) => this.getPopulated(id)?.value)
+          .filter((el) => el !== undefined) as P[]
+    );
   }
   getPopulated(id: string): ComputedRef<P> | undefined {
     const item = this.get(id);
     if (!item) return;
 
     return this.populateFn(item);
-  }
-  toPopulatedArray() {
-    return computed(
-      () =>
-        this.ids.value
-          .map((id) => this.getPopulated(id)?.value)
-          .filter((el) => el !== undefined) as P[]
-    );
   }
 }

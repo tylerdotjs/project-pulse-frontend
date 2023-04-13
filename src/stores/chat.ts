@@ -1,3 +1,4 @@
+import { useChannelStore } from './channel';
 import { defineStore } from 'pinia';
 import {
   DefaultMessage,
@@ -12,6 +13,7 @@ import { useAuthStore } from './auth';
 import { faker } from '@faker-js/faker';
 
 const authStore = useAuthStore();
+const channelStore = useChannelStore();
 
 export const useMessageStore = defineStore('message', () => {
   const profileStore = useProfileStore();
@@ -24,6 +26,7 @@ export const useMessageStore = defineStore('message', () => {
           _id: item.value._id,
           sender,
           text: item.value.text,
+          channelId: item.value.channelId,
           createdAt: item.value.createdAt,
         };
       }),
@@ -33,10 +36,12 @@ export const useMessageStore = defineStore('message', () => {
   function fillFake() {
     const ids = profileStore.getIds();
     const mIds = data.getIds();
+    const channelIds = channelStore.ids;
     const lastMessage = mIds.length > 0 ? data.get(mIds[0]) : undefined;
     for (let i = 0; i < 10; i++) {
       const generated = generateFakeMessageBase(
-        ids[Math.floor(ids.length * Math.random())]
+        ids[Math.floor(ids.length * Math.random())],
+        channelIds[Math.floor(channelIds.length * Math.random())]
       );
       if (lastMessage) {
         generated.createdAt = new Date(
@@ -48,10 +53,11 @@ export const useMessageStore = defineStore('message', () => {
   }
   fillFake();
 
-  function send(message: string) {
+  function send(message: string, channelId: string) {
     return data.add({
       _id: faker.database.mongodbObjectId(),
       sender: authStore.getUid()?.value || '',
+      channelId,
       text: message,
       createdAt: new Date(),
     });
@@ -59,7 +65,7 @@ export const useMessageStore = defineStore('message', () => {
 
   return {
     get: (id: string) => data.getPopulated(id),
-    toReactiveArray: () => data.toPopulatedArray(),
+    computedArray: data.populatedComputedArray,
     pull: () => fillFake(),
     send,
   };

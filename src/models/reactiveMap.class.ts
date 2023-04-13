@@ -7,14 +7,22 @@ export type ReactiveMapOptions<T> = {
 
 export default class ReactiveMap<T extends { _id: string }> {
   protected map = new Map<string, Ref<T>>();
-  protected ids = ref<string[]>([]);
+  ids = ref<string[]>([]);
   protected options: ReactiveMapOptions<T>;
   defaultItem: T;
+  computedArray: ComputedRef<T[]>;
 
   constructor(defaultItem: T, options?: ReactiveMapOptions<T>) {
     this.options = options || {};
     if (options?.initial) options.initial.forEach(this.add);
     this.defaultItem = defaultItem;
+
+    this.computedArray = computed<T[]>(() => {
+      if (!this.ids || !this.ids.value) return [];
+      return this.ids.value
+        .map((id) => this.get(id)?.value)
+        .filter((el) => el !== undefined);
+    });
   }
 
   get(id: string) {
@@ -53,15 +61,6 @@ export default class ReactiveMap<T extends { _id: string }> {
   clear() {
     this.ids.value = [];
     this.map.clear();
-  }
-
-  toReactiveArray() {
-    return computed(() => {
-      if (!this.ids || !this.ids.value) return [];
-      return this.ids.value
-        .map((id) => this.get(id)?.value)
-        .filter((el) => el !== undefined);
-    }) as ComputedRef<T[]>;
   }
 
   getIds() {
