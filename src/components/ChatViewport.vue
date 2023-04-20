@@ -1,17 +1,25 @@
 <template>
-  <q-scroll-area
-    ref="scrollArea"
-    :bar-style="barStyle"
-    :thumb-style="thumbStyle"
-  >
-    <q-infinite-scroll @load="onLoad" reverse :offset="250">
+  <div style="height: 100%">
+    <q-infinite-scroll
+      @load="onLoad"
+      reverse
+      :offset="250"
+      class="scroll"
+      style="contain: strict; height: 100%"
+      ref="scroll"
+    >
       <template v-slot:loading>
         <div class="row justify-center q-my-md">
           <q-spinner-dots color="primary" size="40px" />
         </div>
       </template>
-      <q-list separator>
-        <q-item v-for="message in messages" :key="message._id">
+      <q-scroll-observer @scroll="onScroll"></q-scroll-observer>
+      <q-list>
+        <q-item
+          v-for="message in messages"
+          :key="message._id"
+          style="min-height: 80px"
+        >
           <q-item-section side
             ><q-avatar color="primary" text-color="black" sr>
               <img
@@ -39,14 +47,24 @@
         </q-item>
       </q-list>
     </q-infinite-scroll>
-  </q-scroll-area>
+    <div class="flex justify-center" style="position: relative; bottom: 50px">
+      <q-btn
+        icon="expand_more"
+        color="primary"
+        rounded
+        @click="scrollToBottom"
+        v-if="showScrollBottomBtn"
+        >Scroll to Bottom</q-btn
+      >
+    </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
-import { QScrollArea } from 'quasar';
 import { useMessageStore } from 'src/stores/chat';
 import { computed, ref, watch } from 'vue';
 import iL from 'src/models/intervalLengths';
+import { QInfiniteScroll } from 'quasar';
 
 const interval = ref(Date.now());
 setInterval(() => {
@@ -98,26 +116,10 @@ const messages = computed(() => {
 });
 
 watch(props, () => {
-  setTimeout(scrollToBottom, 1);
+  setTimeout(scrollToBottom, 20);
 });
 
-const scrollArea = ref<QScrollArea | null>(null);
-
-const thumbStyle: QScrollArea['thumbStyle'] = {
-  right: '4px',
-  borderRadius: '7px',
-  backgroundColor: '#027be3',
-  width: '4px',
-  opacity: '0.5',
-};
-
-const barStyle: QScrollArea['barStyle'] = {
-  right: '2px',
-  borderRadius: '9px',
-  backgroundColor: '#000000',
-  width: '8px',
-  opacity: '0.05',
-};
+const scroll = ref<QInfiniteScroll | null>(null);
 
 function onLoad(index: number, done: () => void) {
   store.pull();
@@ -125,8 +127,22 @@ function onLoad(index: number, done: () => void) {
 }
 
 function scrollToBottom() {
-  if (scrollArea.value) {
-    scrollArea.value.setScrollPercentage('vertical', 1);
+  if (scroll.value) {
+    scroll.value.$el.scrollTop =
+      scroll.value.$el.scrollHeight - scroll.value.$el.offsetHeight;
+  }
+}
+
+const showScrollBottomBtn = ref(false);
+
+function onScroll() {
+  if (scroll.value) {
+    const pos =
+      scroll.value.$el.scrollHeight -
+      scroll.value.$el.offsetHeight -
+      scroll.value.$el.scrollTop;
+
+    showScrollBottomBtn.value = pos > 0;
   }
 }
 

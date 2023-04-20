@@ -5,7 +5,7 @@ import { ref } from 'vue';
 const profileStore = useProfileStore();
 
 export const useAuthStore = defineStore('auth', () => {
-  const uid = ref<string | undefined>(profileStore.getIds()[0]);
+  const uid = ref<string | undefined>(profileStore.ids[0]);
 
-  return { getUid: () => uid };
+  return { getUid: () => uid, uid };
 });

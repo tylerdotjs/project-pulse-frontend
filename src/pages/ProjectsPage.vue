@@ -1,12 +1,9 @@
 <template>
   <q-page padding>
-    <!-- content -->
+    <users-select></users-select>
   </q-page>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
-export default defineComponent({
-  // name: 'PageName'
-})
+<script lang="ts" setup>
+import UsersSelect from 'src/components/UserFindSelect.vue';
 </script>

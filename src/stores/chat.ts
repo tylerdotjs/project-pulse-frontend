@@ -34,8 +34,8 @@ export const useMessageStore = defineStore('message', () => {
   );
 
   function fillFake() {
-    const ids = profileStore.getIds();
-    const mIds = data.getIds();
+    const ids = profileStore.ids;
+    const mIds = data.ids.value;
     const channelIds = channelStore.ids;
     const lastMessage = mIds.length > 0 ? data.get(mIds[0]) : undefined;
     for (let i = 0; i < 10; i++) {

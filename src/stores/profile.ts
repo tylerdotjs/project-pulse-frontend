@@ -19,7 +19,7 @@ export const useProfileStore = defineStore('profile', () => {
 
   return {
     get: (id: string) => data.get(id),
-    getIds: () => data.getIds(),
-    toReactiveArray: () => data.toReactiveArray(),
+    ids: data.ids,
+    computedArray: data.computedArray,
   };
 });

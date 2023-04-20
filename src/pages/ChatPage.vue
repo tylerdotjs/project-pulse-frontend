@@ -1,11 +1,8 @@
 <template>
-  <q-page class="flex" :style-fn="fillPageStyleFn">
+  <q-page class="flex no-wrap" :style-fn="fillPageStyleFn">
     <chat-channel-select-menu v-model="store.active"></chat-channel-select-menu>
     <q-separator vertical></q-separator>
-    <div
-      class="flex no-wrap"
-      style="flex-direction: column; height: 100%; flex-grow: 1"
-    >
+    <div class="flex no-wrap column" style="flex-grow: 1">
       <chat-viewport
         style="flex-grow: 1"
         :channel="store.active"
