@@ -5,7 +5,8 @@
     no-connectors
     node-key="_id"
     :nodes="(store.populated.map(el => {
-        return {...el, selectable: false }
+        // channels with children cannot have messages attached to them
+        return {...el, selectable: el.children.length <= 0 }
       }) as unknown[]) as QTreeNode[]"
     v-model:selected="selected"
     selected-color="primary"

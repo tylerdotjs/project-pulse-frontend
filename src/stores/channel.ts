@@ -40,14 +40,19 @@ export const useChannelStore = defineStore('channel', () => {
       })
   );
 
-  const computedRootArray = computed<ChatChannel[]>(() =>
-    data.computedArray.value.filter((el) => el.root)
+  const computedChildrenArray = computed<ChatChannel[]>(() =>
+    data.computedArray.value.filter((el) => !el.root)
+  );
+
+  const childrenIds = computed<string[]>(() =>
+    computedChildrenArray.value.map((el) => el._id)
   );
 
   return {
     active,
     get: (id: string) => data.get(id),
-    computedArray: computedRootArray,
+    computedArray: computedChildrenArray,
+    childrenIds,
     ids: data.ids,
     populated,
   };
