@@ -8,9 +8,12 @@
       >{{ store.get(id).value.name }}</q-chip
     >
     <q-btn icon="add" style="border: 1px solid grey" round size="sm" dense flat>
-      <q-menu class="flex column q-pa-md" style="height: 500px">
-        <q-input v-model="searchInput" dense></q-input>
-        <q-list bordered class="q-mt-md" style="flex-grow: 1" separator>
+      <q-menu class="flex column" style="height: 500px">
+        <div class="q-pa-md">
+          <q-input v-model="searchInput" dense></q-input>
+        </div>
+        <q-separator></q-separator>
+        <q-list style="flex-grow: 1; min-width: 250px" separator>
           <q-item
             v-for="item in options"
             :key="item._id"
