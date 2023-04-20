@@ -1,18 +1,23 @@
 <template>
-  <q-list separator>
-    <q-tabs v-model="tab" vertical dense active-color="primary">
-      <q-tab
-        v-for="channel in store.computedArray"
-        :key="channel._id"
-        :name="channel._id"
-      >
-        <q-item-section> {{ channel.name }}</q-item-section>
-      </q-tab>
-    </q-tabs>
-  </q-list>
+  <q-tree
+    default-expand-all
+    style="width: 200px"
+    no-connectors
+    node-key="_id"
+    :nodes="(store.populated.map(el => {
+        return {...el, selectable: false }
+      }) as unknown[]) as QTreeNode[]"
+    v-model:selected="selected"
+    selected-color="primary"
+  >
+    <template v-slot:default-header="{ node }">
+      {{ node.name }}
+    </template>
+  </q-tree>
 </template>
 
 <script lang="ts" setup>
+import { QTreeNode } from 'quasar';
 import { useChannelStore } from 'src/stores/channel';
 import { computed } from 'vue';
 const store = useChannelStore();
@@ -25,7 +30,7 @@ const emit = defineEmits<{
   (event: 'update:modelValue', value: string): void;
 }>();
 
-const tab = computed<string>({
+const selected = computed<string>({
   get: () => props.modelValue,
   set: (value: string) => emit('update:modelValue', value),
 });

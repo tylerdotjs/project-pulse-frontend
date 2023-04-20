@@ -9,6 +9,12 @@ export type ChatChannel = {
     permissions: ChannelPermissionsObject;
   }[];
   defaultUserPermissions: ChannelPermissionsObject;
+  children: string[];
+  root: boolean;
+};
+
+export type PopulatedChatChannel = Omit<ChatChannel, 'children'> & {
+  children: ChatChannel[];
 };
 
 export const defaultChatChannel: ChatChannel = {
@@ -16,13 +22,20 @@ export const defaultChatChannel: ChatChannel = {
   name: 'Unnamed',
   users: [],
   defaultUserPermissions: {},
+  children: [],
+  root: true,
 };
 
-export function generateFakeChatChannel(): ChatChannel {
+export function generateFakeChatChannel(
+  isChild?: boolean,
+  children?: string[]
+): ChatChannel {
   return {
     _id: faker.database.mongodbObjectId(),
     name: faker.company.bsNoun(),
     users: [],
     defaultUserPermissions: {},
+    children: children || [],
+    root: !isChild,
   };
 }

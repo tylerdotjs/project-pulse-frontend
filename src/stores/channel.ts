@@ -1,7 +1,8 @@
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { defineStore } from 'pinia';
 import {
   ChatChannel,
+  PopulatedChatChannel,
   defaultChatChannel,
   generateFakeChatChannel,
 } from 'src/models/chatChannel.model';
@@ -11,19 +12,43 @@ export const useChannelStore = defineStore('channel', () => {
   const data = new ReactiveMap<ChatChannel>(defaultChatChannel);
   const active = ref<string>('');
 
-  function fillFake(count: number) {
+  function fillFake(count: number, children: number) {
+    const ids: string[] = [];
+
+    for (let i = 0; i < children * count; i++) {
+      const fake = generateFakeChatChannel(true);
+      ids.push(fake._id);
+      data.add(fake);
+    }
     for (let i = 0; i < count; i++) {
-      data.add(generateFakeChatChannel());
+      data.add(generateFakeChatChannel(false, ids.splice(0, children)));
     }
   }
 
-  fillFake(3);
+  fillFake(3, 3);
   active.value = data.getIds()[0];
+
+  const populated = computed<PopulatedChatChannel[]>(() =>
+    data.computedArray.value
+      .filter((el) => el.root)
+      .map((el) => {
+        const children = el.children.map((id) => data.get(id).value);
+        return {
+          ...el,
+          children,
+        };
+      })
+  );
+
+  const computedRootArray = computed<ChatChannel[]>(() =>
+    data.computedArray.value.filter((el) => el.root)
+  );
 
   return {
     active,
     get: (id: string) => data.get(id),
-    computedArray: data.computedArray,
+    computedArray: computedRootArray,
     ids: data.ids,
+    populated,
   };
 });
