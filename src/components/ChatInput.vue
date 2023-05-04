@@ -23,9 +23,8 @@
 
 <script lang="ts" setup>
 import { QInput } from 'quasar';
-import { MessageBase } from 'src/models/message.model';
 import { useChannelStore } from 'src/stores/channel';
-import { useMessageStore } from 'src/stores/chat';
+import { ChatMessage, useMessageStore } from 'src/stores/chat';
 import { computed, ref } from 'vue';
 
 const props = defineProps<{
@@ -41,13 +40,13 @@ const textInput = ref<QInput | null>(null);
 const canSubmit = computed<boolean>(() => text.value.length > 0);
 
 const emit = defineEmits<{
-  (event: 'submit', message: MessageBase): void;
+  (event: 'submit', message: ChatMessage): void;
 }>();
 
 function submit() {
   if (!canSubmit.value) return;
   const channel = props.channel || channelStore.active;
-  emit('submit', messageStore.send(text.value, channel).value);
+  emit('submit', messageStore.send(text.value, channel));
   text.value = '';
   focusInput();
 }

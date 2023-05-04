@@ -17,31 +17,35 @@
       <q-list>
         <q-item
           v-for="message in messages"
-          :key="message._id"
+          :key="message.id"
           style="min-height: 80px"
         >
           <q-item-section side
             ><q-avatar color="primary" text-color="black" sr>
               <img
-                :src="message.sender.avatar"
+                :src="message.sender?.avatar"
                 :alt="
-                  message.sender.name
+                  message.sender?.name
                     .split(' ')
                     .slice(0, 2)
                     .map((el) => el.charAt(0))
-                    .join('')
+                    .join('') || 'N/A'
                 "
               /> </q-avatar
           ></q-item-section>
           <q-item-section>
             <q-item-label class="flex row q-gutter-sm">
-              <div>{{ message.sender.name }}</div>
-              <div class="text-caption text-grey" style="line-height: inherit">
-                {{ toRel(message.createdAt).value }}
+              <div>{{ message.sender?.name }}</div>
+              <div
+                class="text-caption text-grey"
+                style="line-height: inherit"
+                v-if="message.value"
+              >
+                {{ toRel(message.value.createdAt).value }}
               </div>
             </q-item-label>
             <q-item-label caption>
-              {{ message.text }}
+              {{ message.value?.text }}
             </q-item-label>
           </q-item-section>
         </q-item>
@@ -106,10 +110,10 @@ const props = defineProps<{
 const store = useMessageStore();
 
 const messages = computed(() => {
-  let msgs = store.computedArray;
+  let msgs = store.items;
 
   if (props.channel) {
-    msgs = msgs.filter((el) => el.channelId === props.channel);
+    msgs = msgs.filter((el) => el.value?.channelId === props.channel);
   }
 
   return msgs;
@@ -122,7 +126,7 @@ watch(props, () => {
 const scroll = ref<QInfiniteScroll | null>(null);
 
 function onLoad(index: number, done: () => void) {
-  store.pull();
+  store.pull(props.channel);
   done();
 }
 
