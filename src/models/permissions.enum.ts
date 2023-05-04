@@ -9,3 +9,16 @@ export type ChannelPermission =
 export type ChannelPermissionsObject = {
   [permission in ChannelPermission]?: boolean;
 };
+
+export const ProjectPermission = {
+  Owner: 'project.owner',
+  Read: 'project.read',
+  Write: 'project.write',
+} as const;
+
+export type ProjectPermission =
+  (typeof ProjectPermission)[keyof typeof ProjectPermission];
+
+export type ProjectPermissionsObject = {
+  [permission in ProjectPermission]?: boolean;
+};
