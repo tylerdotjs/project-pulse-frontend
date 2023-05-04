@@ -25,7 +25,7 @@
 import { QInput } from 'quasar';
 import { useChannelStore } from 'src/stores/channel';
 import { ChatMessage, useMessageStore } from 'src/stores/chat';
-import { computed, ref } from 'vue';
+import { UnwrapNestedRefs, computed, ref } from 'vue';
 
 const props = defineProps<{
   channel?: string;
@@ -40,7 +40,7 @@ const textInput = ref<QInput | null>(null);
 const canSubmit = computed<boolean>(() => text.value.length > 0);
 
 const emit = defineEmits<{
-  (event: 'submit', message: ChatMessage): void;
+  (event: 'submit', message: UnwrapNestedRefs<ChatMessage>): void;
 }>();
 
 function submit() {

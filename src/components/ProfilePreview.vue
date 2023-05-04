@@ -2,12 +2,12 @@
   <q-item v-if="profile">
     <q-item-section side>
       <q-avatar>
-        <img :src="profile.value?.avatar" />
+        <img :src="profile.data?.avatar" />
       </q-avatar>
     </q-item-section>
     <div class="flex column justify-start">
       <q-item-label class="text-subtitle1 text-no-wrap">
-        {{ profile.value?.name }}
+        {{ profile.data?.name }}
       </q-item-label>
       <q-item-label caption>
         {{ profile.id }}

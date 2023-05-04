@@ -5,7 +5,7 @@
       :key="id"
       removable
       @remove="removeItem(id)"
-      >{{ store.get(id).value.name }}</q-chip
+      >{{ store.get(id).data.name }}</q-chip
     >
     <q-btn icon="add" style="border: 1px solid grey" round size="sm" dense flat>
       <q-menu class="flex column" style="height: 500px">

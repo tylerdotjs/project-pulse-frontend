@@ -27,9 +27,7 @@ export const useNotificationStore = defineStore('notification', () => {
   function fillWithDummy(count: number) {
     for (let i = 0; i < count; i++) {
       const fake = generateFakeNotification();
-      const item = new NotificationItem(fake._id);
-      item.value = fake;
-      data.setItem(item);
+      data.addItem(fake._id, fake);
     }
   }
 
@@ -37,9 +35,7 @@ export const useNotificationStore = defineStore('notification', () => {
 
   setInterval(() => {
     const fake = generateFakeNotification();
-    const item = new NotificationItem(fake._id);
-    item.value = fake;
-    data.setItem(item);
+    data.addItem(fake._id, fake);
   }, 10000);
 
   return {

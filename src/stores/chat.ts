@@ -17,8 +17,8 @@ export class ChatMessage extends MassStoreItem<MessageBase> {
     throw new Error('Method not implemented.');
   }
   sender = computed((): Profile | undefined => {
-    if (!this.value) return;
-    return profileStore.get(this.value.sender).value;
+    if (!this.data.value) return;
+    return profileStore.get(this.data.value?.sender).data;
   });
 }
 
@@ -34,21 +34,21 @@ export const useMessageStore = defineStore('message', () => {
   function fillFake(channel?: string) {
     const ids = profileStore.ids;
     const mIds = data.ids;
-    const channelIds = channel ? [channel] : channelStore.childrenIds;
+    const channelIds = channel
+      ? [channel]
+      : channelStore.childrenItems.map((el) => el.id);
     const lastMessage = mIds.length > 0 ? data.get(mIds[0]) : undefined;
     for (let i = 0; i < 10; i++) {
       const generated = generateFakeMessageBase(
         ids[Math.floor(ids.length * Math.random())],
         channelIds[Math.floor(channelIds.length * Math.random())]
       );
-      if (lastMessage?.value) {
+      if (lastMessage?.data) {
         generated.createdAt = new Date(
-          lastMessage.value.createdAt.valueOf() - 60000
+          lastMessage.data.createdAt.valueOf() - 60000
         );
       }
-      const item = new ChatMessage(generated._id);
-      item.value = generated;
-      data.setItem(item);
+      const item = data.addItem(generated._id, generated);
       data.setItemIndex(item.id, 0);
     }
   }
@@ -62,11 +62,8 @@ export const useMessageStore = defineStore('message', () => {
       text: message,
       createdAt: new Date(),
     };
-    const item = new ChatMessage(itemData._id);
-    item.value = itemData;
-    data.setItem(item);
-    data.setItemIndex(item.id, 0);
-    return item;
+
+    return data.addItem(itemData._id, itemData);
   }
 
   return {

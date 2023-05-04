@@ -14,5 +14,5 @@ const props = defineProps<{
 
 const profileStore = useProfileStore();
 
-const user = computed(() => profileStore.get(props.id).value);
+const user = computed(() => profileStore.get(props.id).data);
 </script>

@@ -66,6 +66,6 @@ const user = computed<Profile | undefined>(() => {
   const uid = authStore.getUid();
   if (!uid.value) return undefined;
 
-  return profileStore.get(uid.value).value;
+  return profileStore.get(uid.value).data;
 });
 </script>

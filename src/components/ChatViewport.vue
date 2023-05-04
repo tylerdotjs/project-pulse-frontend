@@ -39,13 +39,13 @@
               <div
                 class="text-caption text-grey"
                 style="line-height: inherit"
-                v-if="message.value"
+                v-if="message.data"
               >
-                {{ toRel(message.value.createdAt).value }}
+                {{ toRel(message.data.createdAt).value }}
               </div>
             </q-item-label>
             <q-item-label caption>
-              {{ message.value?.text }}
+              {{ message.data?.text }}
             </q-item-label>
           </q-item-section>
         </q-item>
@@ -113,7 +113,7 @@ const messages = computed(() => {
   let msgs = store.items;
 
   if (props.channel) {
-    msgs = msgs.filter((el) => el.value?.channelId === props.channel);
+    msgs = msgs.filter((el) => el.data?.channelId === props.channel);
   }
 
   return msgs;

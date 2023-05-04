@@ -21,9 +21,7 @@ export const useProfileStore = defineStore('profile', () => {
   function fillFake(count: number) {
     for (let i = 0; i < count; i++) {
       const fake = generateFakeProfile();
-      const item = new ProfileItem(fake._id);
-      item.value = fake;
-      data.setItem(item);
+      data.addItem(fake._id, fake);
     }
   }
 
@@ -33,9 +31,9 @@ export const useProfileStore = defineStore('profile', () => {
     computed(() =>
       data.items.value.filter(
         (profile) =>
-          profile.value &&
-          (new RegExp('^' + input.value, 'i').test(profile.value.name) ||
-            new RegExp(' ' + input.value, 'i').test(profile.value.name))
+          profile.data &&
+          (new RegExp('^' + input.value, 'i').test(profile.data.name) ||
+            new RegExp(' ' + input.value, 'i').test(profile.data.name))
       )
     );
 

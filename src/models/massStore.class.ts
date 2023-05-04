@@ -1,29 +1,29 @@
-import { UnwrapNestedRefs, computed, reactive } from 'vue';
+import { UnwrapNestedRefs, computed, reactive, ref } from 'vue';
 
 export abstract class MassStoreItem<T extends object = object> {
-  protected _value?: T;
-  id = 'null';
+  protected _data = ref<T>();
+  id = ref('null');
 
   loading = false;
 
-  get value(): T | undefined {
-    return this._value;
-  }
-  set value(val: T | undefined) {
-    this._value = val;
+  data = computed({
+    get: () => this._data.value,
+    set: (value) => {
+      this._data.value = value;
 
-    // Set of object is value has id
-    if (!val) return;
-    if ('id' in val && typeof val.id == 'string') {
-      this.id = val.id;
-    }
-    if ('_id' in val && typeof val._id == 'string') {
-      this.id = val._id;
-    }
-  }
+      // Set of object is value has id
+      if (!value) return;
+      if ('id' in value && typeof value.id == 'string') {
+        this.id.value = value.id;
+      }
+      if ('_id' in value && typeof value._id == 'string') {
+        this.id.value = value._id;
+      }
+    },
+  });
 
   constructor(id: string) {
-    this.id = id;
+    this.id.value = id;
   }
 
   protected abstract pullFn(): Promise<T>;
@@ -35,14 +35,14 @@ export abstract class MassStoreItem<T extends object = object> {
     this.loading = true;
     try {
       const res = await this.pullFn();
-      this.value = res;
+      this.data.value = res;
     } catch {}
     this.loading = false;
   }
 
   set(item: typeof this) {
     this.id = item.id;
-    this.value = item.value;
+    this.data = item.data;
     return this;
   }
 }
@@ -52,22 +52,29 @@ export abstract class MassStore<T extends MassStoreItem = MassStoreItem> {
   data = new Map<string, UnwrapNestedRefs<T>>();
   items = computed(() => this.ids.map((id) => this.get(id)));
 
-  abstract createItem(id: string): T;
+  protected abstract createItem(id: string): T;
+
+  addItem(id: string, value?: T['data']['value']) {
+    const item = this.createItem(id);
+    if (value) item.data.value = value;
+
+    return this.setItem(item);
+  }
 
   setItem(item: T) {
     const reactiveItem = reactive(item);
-    const storedItem = this.data.get(item.id);
+    const storedItem = this.data.get(reactiveItem.id);
 
-    if (!this.ids.includes(item.id)) {
+    if (!this.ids.includes(reactiveItem.id)) {
       // If item id is not present in ids array
-      this.ids.push(item.id);
+      this.ids.push(reactiveItem.id);
     }
     // Overwrite content of item or set new item in data map
     if (storedItem) {
       storedItem.set(item);
       return storedItem;
     } else {
-      this.data.set(item.id, reactiveItem);
+      this.data.set(reactiveItem.id, reactiveItem);
     }
 
     // Return new stored item
@@ -85,10 +92,10 @@ export abstract class MassStore<T extends MassStoreItem = MassStoreItem> {
   async pull(id: string) {
     const item = this.get(id);
 
-    const valueBefore = item.value;
+    const valueBefore = item.data;
     await item.pull();
 
-    return { valueBefore, valueAfter: item.value };
+    return { valueBefore, valueAfter: item.data };
   }
   pullAll() {
     for (const item of this.items.value) {

@@ -1,15 +1,38 @@
-import { computed, ref } from 'vue';
+import { computed, ref, UnwrapNestedRefs } from 'vue';
 import { defineStore } from 'pinia';
 import {
   ChatChannel,
-  PopulatedChatChannel,
-  defaultChatChannel,
   generateFakeChatChannel,
 } from 'src/models/chatChannel.model';
-import ReactiveMap from 'src/models/reactiveMap.class';
+import { MassStore, MassStoreItem } from 'src/models/massStore.class';
+import { QTreeNode } from 'quasar';
+
+export class ChannelItem extends MassStoreItem<ChatChannel> {
+  protected pullFn(): Promise<ChatChannel> {
+    throw new Error('Method not implemented.');
+  }
+
+  parent: ChannelData;
+
+  children = computed(() => {
+    if (!parent || !this.data.value) return [];
+
+    return this.data.value.children.map((el) => this.parent.get(el));
+  });
+
+  constructor(parent: ChannelData, id: string) {
+    super(id);
+    this.parent = parent;
+  }
+}
+export class ChannelData extends MassStore<ChannelItem> {
+  createItem(id: string): ChannelItem {
+    return new ChannelItem(this, id);
+  }
+}
 
 export const useChannelStore = defineStore('channel', () => {
-  const data = new ReactiveMap<ChatChannel>(defaultChatChannel);
+  const data = new ChannelData();
   const active = ref<string>('');
 
   function fillFake(count: number, children: number) {
@@ -18,42 +41,37 @@ export const useChannelStore = defineStore('channel', () => {
     for (let i = 0; i < children * count; i++) {
       const fake = generateFakeChatChannel(true);
       ids.push(fake._id);
-      data.add(fake);
+      data.addItem(fake._id, fake);
     }
     for (let i = 0; i < count; i++) {
-      data.add(generateFakeChatChannel(false, ids.splice(0, children)));
+      const fake = generateFakeChatChannel(false, ids.splice(0, children));
+      data.addItem(fake._id, fake);
     }
   }
 
   fillFake(3, 3);
-  active.value = data.getIds()[0];
+  active.value = data.ids[0];
 
-  const populated = computed<PopulatedChatChannel[]>(() =>
-    data.computedArray.value
-      .filter((el) => el.root)
-      .map((el) => {
-        const children = el.children.map((id) => data.get(id).value);
-        return {
-          ...el,
-          children,
-        };
-      })
+  const rootItems = computed(() =>
+    data.items.value.filter((el) => el.data?.root)
   );
 
-  const computedChildrenArray = computed<ChatChannel[]>(() =>
-    data.computedArray.value.filter((el) => !el.root)
+  const childrenItems = computed(() =>
+    data.items.value.filter((el) => el.data && !el.data.root)
   );
 
-  const childrenIds = computed<string[]>(() =>
-    computedChildrenArray.value.map((el) => el._id)
-  );
+  function itemToTreeNode(item: UnwrapNestedRefs<ChannelItem>): QTreeNode {
+    return {
+      ...item.data,
+      children: item.children.map(itemToTreeNode),
+    };
+  }
 
   return {
     active,
     get: (id: string) => data.get(id),
-    computedArray: computedChildrenArray,
-    childrenIds,
-    ids: data.ids,
-    populated,
+    rootItems,
+    childrenItems,
+    itemToTreeNode,
   };
 });

@@ -29,12 +29,12 @@
         <q-item v-for="notification in store.items" :key="notification.id">
           <q-item-section>
             <q-item-label>
-              {{ notification.value?.body }}
+              {{ notification.data?.body }}
             </q-item-label>
           </q-item-section>
           <q-item-section top side>
             <q-item-label caption>
-              {{ notification.value?.timestamp.toLocaleString() }}
+              {{ notification.data?.timestamp.toLocaleString() }}
             </q-item-label>
           </q-item-section>
         </q-item>

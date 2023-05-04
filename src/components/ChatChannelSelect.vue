@@ -14,10 +14,7 @@
       style="width: 200px"
       no-connectors
       node-key="_id"
-      :nodes="(store.populated.map(el => {
-        // channels with children cannot have messages attached to them
-        return {...el, selectable: el.children.length <= 0 }
-      }) as unknown[]) as QTreeNode[]"
+      :nodes="tree"
       v-model:selected="selected"
       selected-color="primary"
     >
@@ -39,6 +36,10 @@ const props = defineProps<{
 }>();
 
 const open = ref(true);
+
+const tree = computed<QTreeNode[]>(() =>
+  store.rootItems.map(store.itemToTreeNode)
+);
 
 const emit = defineEmits<{
   (event: 'update:modelValue', value: string): void;
