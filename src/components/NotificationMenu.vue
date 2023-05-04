@@ -5,8 +5,8 @@
       color="red"
       rounded
       class="q-sm"
-      v-if="store.computedArray.length > 0"
-      >{{ store.computedArray.length }}</q-badge
+      v-if="store.items.length > 0"
+      >{{ store.items.length }}</q-badge
     >
     <q-menu style="min-height: 400px" v-model="showing">
       <q-list style="width: 400px" separator>
@@ -26,18 +26,15 @@
             </q-btn>
           </q-item-section>
         </q-item>
-        <q-item
-          v-for="notification in store.computedArray"
-          :key="notification._id"
-        >
+        <q-item v-for="notification in store.items" :key="notification.id">
           <q-item-section>
             <q-item-label>
-              {{ notification.body }}
+              {{ notification.value?.body }}
             </q-item-label>
           </q-item-section>
           <q-item-section top side>
             <q-item-label caption>
-              {{ notification.timestamp.toLocaleString() }}
+              {{ notification.value?.timestamp.toLocaleString() }}
             </q-item-label>
           </q-item-section>
         </q-item>

@@ -1,29 +1,50 @@
 import { defineStore } from 'pinia';
 import {
-  DefaultNotification,
   Notification,
   generateFakeNotification,
 } from '../models/notification.model';
-import ReactiveMap from 'src/models/reactiveMap.class';
+import { MassStore, MassStoreItem } from 'src/models/massStore.class';
+
+export class NotificationItem extends MassStoreItem<Notification> {
+  protected pullFn(): Promise<Notification> {
+    throw new Error('Method not implemented.');
+  }
+}
+
+export class NotificationData extends MassStore<NotificationItem> {
+  createItem(id: string): NotificationItem {
+    return new NotificationItem(id);
+  }
+  clear() {
+    this.ids = [];
+    this.data.clear();
+  }
+}
 
 export const useNotificationStore = defineStore('notification', () => {
-  const data = new ReactiveMap<Notification>(DefaultNotification);
+  const data = new NotificationData();
 
   function fillWithDummy(count: number) {
     for (let i = 0; i < count; i++) {
-      data.add(generateFakeNotification());
+      const fake = generateFakeNotification();
+      const item = new NotificationItem(fake._id);
+      item.value = fake;
+      data.setItem(item);
     }
   }
 
   fillWithDummy(3);
 
   setInterval(() => {
-    data.add(generateFakeNotification());
+    const fake = generateFakeNotification();
+    const item = new NotificationItem(fake._id);
+    item.value = fake;
+    data.setItem(item);
   }, 10000);
 
   return {
     clear: () => data.clear(),
     get: (id: string) => data.get(id),
-    computedArray: data.computedArray,
+    items: data.items,
   };
 });

@@ -1,6 +1,6 @@
 import { UnwrapNestedRefs, computed, reactive } from 'vue';
 
-export abstract class MassStoreItem<T extends object> {
+export abstract class MassStoreItem<T extends object = object> {
   protected _value?: T;
   id = 'null';
 
@@ -47,17 +47,14 @@ export abstract class MassStoreItem<T extends object> {
   }
 }
 
-export abstract class MassStore<
-  T extends object,
-  I extends MassStoreItem<T> = MassStoreItem<T>
-> {
+export abstract class MassStore<T extends MassStoreItem = MassStoreItem> {
   ids = reactive<string[]>([]);
-  data = new Map<string, UnwrapNestedRefs<I>>();
+  data = new Map<string, UnwrapNestedRefs<T>>();
   items = computed(() => this.ids.map((id) => this.get(id)));
 
-  abstract createItem(id: string): I;
+  abstract createItem(id: string): T;
 
-  setItem(item: I) {
+  setItem(item: T) {
     const reactiveItem = reactive(item);
     const storedItem = this.data.get(item.id);
 

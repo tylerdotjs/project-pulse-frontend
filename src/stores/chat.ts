@@ -22,14 +22,14 @@ export class ChatMessage extends MassStoreItem<MessageBase> {
   });
 }
 
-export class ChatMassStore extends MassStore<MessageBase, ChatMessage> {
+export class ChatData extends MassStore<ChatMessage> {
   createItem(id: string): ChatMessage {
     return new ChatMessage(id);
   }
 }
 
 export const useMessageStore = defineStore('message', () => {
-  const data = new ChatMassStore();
+  const data = new ChatData();
 
   function fillFake(channel?: string) {
     const ids = profileStore.ids;
