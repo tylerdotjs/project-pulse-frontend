@@ -17,8 +17,8 @@ export class ChatMessage extends MassStoreItem<MessageBase> {
     throw new Error('Method not implemented.');
   }
   sender = computed((): Profile | undefined => {
-    if (!this.data.value) return;
-    return profileStore.get(this.data.value?.sender).data;
+    if (!this.data) return;
+    return profileStore.get(this.data?.sender).data;
   });
 }
 
@@ -52,7 +52,6 @@ export const useMessageStore = defineStore('message', () => {
       data.setItemIndex(item.id, 0);
     }
   }
-  fillFake();
 
   function send(message: string, channelId: string) {
     const itemData = {

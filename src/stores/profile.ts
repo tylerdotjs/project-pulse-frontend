@@ -25,7 +25,7 @@ export const useProfileStore = defineStore('profile', () => {
     }
   }
 
-  fillFake(4);
+  fillFake(20);
 
   const reactiveSearch = (input: Ref<string>) =>
     computed(() =>

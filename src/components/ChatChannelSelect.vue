@@ -1,5 +1,5 @@
 <template>
-  <div class="flex column" @click="open = true">
+  <div class="flex column no-wrap" @click="open = true">
     <q-checkbox
       v-model="open"
       style="margin-left: auto"
@@ -8,25 +8,24 @@
       keep-color
       :color="$q.dark.isActive ? 'white' : 'black'"
     ></q-checkbox>
-    <q-tree
-      v-if="open"
-      default-expand-all
-      style="width: 200px"
-      no-connectors
-      node-key="_id"
-      :nodes="tree"
-      v-model:selected="selected"
-      selected-color="primary"
-    >
-      <template v-slot:default-header="{ node }">
-        {{ node.name }}
-      </template>
-    </q-tree>
+    <q-scroll-area v-if="open" style="width: 200px; height: 100%">
+      <q-tree
+        default-expand-all
+        no-connectors
+        node-key="_id"
+        :nodes="store.treeNodes"
+        v-model:selected="selected"
+        selected-color="primary"
+      >
+        <template v-slot:default-header="{ node }">
+          {{ node.name }}
+        </template>
+      </q-tree>
+    </q-scroll-area>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { QTreeNode } from 'quasar';
 import { useChannelStore } from 'src/stores/channel';
 import { computed, ref } from 'vue';
 const store = useChannelStore();
@@ -36,10 +35,6 @@ const props = defineProps<{
 }>();
 
 const open = ref(true);
-
-const tree = computed<QTreeNode[]>(() =>
-  store.rootItems.map(store.itemToTreeNode)
-);
 
 const emit = defineEmits<{
   (event: 'update:modelValue', value: string): void;

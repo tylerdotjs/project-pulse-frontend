@@ -16,7 +16,7 @@ export class NotificationData extends MassStore<NotificationItem> {
     return new NotificationItem(id);
   }
   clear() {
-    this.ids = [];
+    this.ids.splice(0, this.ids.length - 1);
     this.data.clear();
   }
 }

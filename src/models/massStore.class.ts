@@ -1,43 +1,43 @@
 import { UnwrapNestedRefs, computed, reactive, ref } from 'vue';
 
 export abstract class MassStoreItem<T extends object = object> {
-  protected _data = ref<T>();
-  id = ref('null');
+  protected _data?: T;
+  id = 'null';
 
-  loading = false;
+  readonly loading = ref(false);
 
-  data = computed({
-    get: () => this._data.value,
-    set: (value) => {
-      this._data.value = value;
+  get data() {
+    return this._data;
+  }
+  set data(value) {
+    this._data = value;
 
-      // Set of object is value has id
-      if (!value) return;
-      if ('id' in value && typeof value.id == 'string') {
-        this.id.value = value.id;
-      }
-      if ('_id' in value && typeof value._id == 'string') {
-        this.id.value = value._id;
-      }
-    },
-  });
+    // Set of object is value has id
+    if (!value) return;
+    if ('id' in value && typeof value.id == 'string') {
+      this.id = value.id;
+    }
+    if ('_id' in value && typeof value._id == 'string') {
+      this.id = value._id;
+    }
+  }
 
-  constructor(id: string) {
-    this.id.value = id;
+  constructor(id?: string) {
+    this.id = id || 'null';
   }
 
   protected abstract pullFn(): Promise<T>;
 
   async pull() {
     // if item is already loading don't pull again
-    if (this.loading) return;
+    if (this.loading.value) return;
 
-    this.loading = true;
+    this.loading.value = true;
     try {
       const res = await this.pullFn();
-      this.data.value = res;
+      this.data = res;
     } catch {}
-    this.loading = false;
+    this.loading.value = false;
   }
 
   set(item: typeof this) {
@@ -48,15 +48,15 @@ export abstract class MassStoreItem<T extends object = object> {
 }
 
 export abstract class MassStore<T extends MassStoreItem = MassStoreItem> {
-  ids = reactive<string[]>([]);
-  data = new Map<string, UnwrapNestedRefs<T>>();
-  items = computed(() => this.ids.map((id) => this.get(id)));
+  readonly ids = reactive<string[]>([]);
+  readonly data = new Map<string, UnwrapNestedRefs<T>>();
+  readonly items = computed(() => this.ids.map((id) => this.get(id)));
 
   protected abstract createItem(id: string): T;
 
-  addItem(id: string, value?: T['data']['value']) {
+  addItem(id: string, value?: T['data']) {
     const item = this.createItem(id);
-    if (value) item.data.value = value;
+    if (value) item.data = value;
 
     return this.setItem(item);
   }

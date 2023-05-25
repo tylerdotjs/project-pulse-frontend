@@ -1,17 +1,25 @@
 <template>
-  <q-item v-if="profile">
-    <q-item-section side>
-      <q-avatar>
-        <img :src="profile.data?.avatar" />
-      </q-avatar>
-    </q-item-section>
-    <div class="flex column justify-start">
-      <q-item-label class="text-subtitle1 text-no-wrap">
-        {{ profile.data?.name }}
-      </q-item-label>
-      <q-item-label caption>
-        {{ profile.id }}
-      </q-item-label>
+  <q-item v-if="profile" class="column">
+    <div class="flex">
+      <q-item-section side>
+        <q-avatar>
+          <img :src="profile.data?.avatar" />
+        </q-avatar>
+      </q-item-section>
+      <q-item-section>
+        <q-item-label class="text-subtitle1 text-no-wrap">
+          {{ profile.data?.name }}
+        </q-item-label>
+        <q-item-label caption>
+          {{ profile.id }}
+        </q-item-label>
+      </q-item-section>
+      <q-item-section side>
+        <slot name="action"></slot>
+      </q-item-section>
+    </div>
+    <div>
+      <slot></slot>
     </div>
   </q-item>
   <q-item v-else> No profile </q-item>
@@ -37,3 +45,9 @@ const profile = computed(() => {
   return profile;
 });
 </script>
+
+<style>
+.q-icon {
+  line-height: normal;
+}
+</style>

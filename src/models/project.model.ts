@@ -4,17 +4,22 @@ import { Standard } from './standard.model';
 
 export type Project = {
   _id: string;
+  title: string;
+  description: string;
   users: {
     _id: string;
     permissions: ProjectPermissionsObject;
   }[];
-  standards: Standard[];
+  standards: {
+    id: string;
+    influence: number;
+    score?: number;
+  }[];
   createdAt: Date;
 };
 
 export function generateFake({
   users,
-  standards,
 }: {
   users?: {
     _id: string;
@@ -24,15 +29,10 @@ export function generateFake({
 }): Project {
   return {
     _id: faker.database.mongodbObjectId(),
+    title: faker.commerce.product(),
+    description: faker.commerce.productDescription(),
     users: users || [],
-    standards: standards || [],
+    standards: [],
     createdAt: new Date(),
   };
 }
-
-export const defaultProject: Project = {
-  _id: 'null',
-  users: [],
-  standards: [],
-  createdAt: new Date(),
-};

@@ -11,23 +11,10 @@ export class ChannelItem extends MassStoreItem<ChatChannel> {
   protected pullFn(): Promise<ChatChannel> {
     throw new Error('Method not implemented.');
   }
-
-  parent: ChannelData;
-
-  children = computed(() => {
-    if (!parent || !this.data.value) return [];
-
-    return this.data.value.children.map((el) => this.parent.get(el));
-  });
-
-  constructor(parent: ChannelData, id: string) {
-    super(id);
-    this.parent = parent;
-  }
 }
 export class ChannelData extends MassStore<ChannelItem> {
   createItem(id: string): ChannelItem {
-    return new ChannelItem(this, id);
+    return new ChannelItem(id);
   }
 }
 
@@ -35,17 +22,16 @@ export const useChannelStore = defineStore('channel', () => {
   const data = new ChannelData();
   const active = ref<string>('');
 
-  function fillFake(count: number, children: number) {
-    const ids: string[] = [];
-
-    for (let i = 0; i < children * count; i++) {
-      const fake = generateFakeChatChannel(true);
-      ids.push(fake._id);
-      data.addItem(fake._id, fake);
-    }
-    for (let i = 0; i < count; i++) {
-      const fake = generateFakeChatChannel(false, ids.splice(0, children));
-      data.addItem(fake._id, fake);
+  function fillFake(layers: number, perItemPerLayer: number) {
+    let previousLayer: string[] = [''];
+    for (let l = 0; l < layers; l++) {
+      const currentLayer: string[] = [];
+      for (let i = 0; i < perItemPerLayer * previousLayer.length; i++) {
+        const id = previousLayer[i % previousLayer.length];
+        const fake = generateFakeChatChannel(id);
+        currentLayer.push(data.addItem(fake._id, fake).id);
+      }
+      previousLayer = currentLayer;
     }
   }
 
@@ -53,19 +39,28 @@ export const useChannelStore = defineStore('channel', () => {
   active.value = data.ids[0];
 
   const rootItems = computed(() =>
-    data.items.value.filter((el) => el.data?.root)
+    data.items.value.filter((el) => el.data && !el.data.parent)
   );
 
   const childrenItems = computed(() =>
-    data.items.value.filter((el) => el.data && !el.data.root)
+    data.items.value.filter((el) => el.data && el.data.parent)
   );
 
   function itemToTreeNode(item: UnwrapNestedRefs<ChannelItem>): QTreeNode {
+    if (!item.data) return {};
+
+    const children = data.items.value
+      .filter((el) => el.data && el.data.parent == item.id)
+      .map(itemToTreeNode);
+
     return {
       ...item.data,
-      children: item.children.map(itemToTreeNode),
+      children,
+      selectable: children.length < 1,
     };
   }
+
+  const treeNodes = computed(() => rootItems.value.map(itemToTreeNode));
 
   return {
     active,
@@ -73,5 +68,6 @@ export const useChannelStore = defineStore('channel', () => {
     rootItems,
     childrenItems,
     itemToTreeNode,
+    treeNodes,
   };
 });
